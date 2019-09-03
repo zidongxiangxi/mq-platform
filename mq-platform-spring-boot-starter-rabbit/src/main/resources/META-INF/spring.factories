@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.zidongxiangxi.mqplatform.starter.MqPlatformJdbcAutoConfiguration,\
+  com.zidongxiangxi.mqplatform.starter.MqPlatformProducerAutoConfiguration\
+
