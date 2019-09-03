@@ -2,7 +2,7 @@ package com.zidongxiangxi.mqplatform.producer.transaction;
 
 import com.zidongxiangxi.mqplatform.api.transaction.ITransactionListener;
 import com.zidongxiangxi.mqplatform.producer.RabbitTransactionTemplate;
-import com.zidongxiangxi.mqplatform.producer.entity.RabbitMqProducer;
+import com.zidongxiangxi.mqplatform.producer.entity.RabbitProducer;
 import com.zidongxiangxi.mqplatform.producer.RabbitTransactionContext;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,8 +36,8 @@ public class RabbitProducerTransactionListener implements ITransactionListener {
     public void beforeCommit() {
         RabbitProducerTransactionMessageHolder messageHolder = RabbitTransactionContext.getMessageHolder();
         if (messageHolder != null) {
-            List<RabbitMqProducer> list = get();
-            for (RabbitMqProducer mqProducer : list) {
+            List<RabbitProducer> list = get();
+            for (RabbitProducer mqProducer : list) {
                 messageHolder.getProducerManager().saveMqProducer(mqProducer);
             }
         }
@@ -45,8 +45,8 @@ public class RabbitProducerTransactionListener implements ITransactionListener {
 
     @Override
     public void afterCommit() {
-        List<RabbitMqProducer> list = remove();
-        for (RabbitMqProducer mqProducer : list) {
+        List<RabbitProducer> list = remove();
+        for (RabbitProducer mqProducer : list) {
             try {
                 rabbitTransactionTemplate.sendWithoutTransaction(mqProducer.getExchange(), mqProducer.getRoutingKey(), mqProducer.getMessage(), mqProducer.getCorrelationData());
             } catch (Throwable t) {
@@ -57,8 +57,8 @@ public class RabbitProducerTransactionListener implements ITransactionListener {
 
     @Override
     public void afterCompletion() {
-        List<RabbitMqProducer> list = remove();
-        for (RabbitMqProducer mqProducer : list) {
+        List<RabbitProducer> list = remove();
+        for (RabbitProducer mqProducer : list) {
             log.info("事务提交失败, 消息({})被忽略.exchange:{}.routingKey:{}", mqProducer.getMessageId(), mqProducer.getExchange(), mqProducer.getRoutingKey());
         }
     }
@@ -78,7 +78,7 @@ public class RabbitProducerTransactionListener implements ITransactionListener {
         RabbitTransactionContext.setMessageHolder(resource.get().pop());
     }
 
-    private List<RabbitMqProducer> get() {
+    private List<RabbitProducer> get() {
         RabbitProducerTransactionMessageHolder messageHolder = RabbitTransactionContext.getMessageHolder();
         if (messageHolder == null) {
             return Collections.emptyList();
@@ -86,7 +86,7 @@ public class RabbitProducerTransactionListener implements ITransactionListener {
         return messageHolder.getQueue();
     }
 
-    private List<RabbitMqProducer> remove() {
+    private List<RabbitProducer> remove() {
         RabbitProducerTransactionMessageHolder messageHolder = RabbitTransactionContext.getMessageHolder();
         RabbitTransactionContext.removeMessageHolder();
         if (messageHolder == null) {

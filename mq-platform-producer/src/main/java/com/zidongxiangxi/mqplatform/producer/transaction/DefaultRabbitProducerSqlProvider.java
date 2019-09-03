@@ -1,5 +1,6 @@
 package com.zidongxiangxi.mqplatform.producer.transaction;
 
+import com.zidongxiangxi.mqplatform.api.transaction.IProducerSqlProvider;
 import org.springframework.util.StringUtils;
 
 /**

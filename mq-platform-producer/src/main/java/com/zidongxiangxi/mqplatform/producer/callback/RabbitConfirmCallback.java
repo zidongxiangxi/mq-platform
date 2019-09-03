@@ -1,6 +1,6 @@
 package com.zidongxiangxi.mqplatform.producer.callback;
 
-import com.zidongxiangxi.mqplatform.producer.manager.rabbit.RabbitMqProducerManager;
+import com.zidongxiangxi.mqplatform.producer.manager.RabbitProducerManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,10 +15,10 @@ import java.util.Objects;
  * @date 2019/08/31
  */
 @Slf4j
-public class RabbitMqConfirmCallback implements RabbitTemplate.ConfirmCallback {
-    private RabbitMqProducerManager manager;
+public class RabbitConfirmCallback implements RabbitTemplate.ConfirmCallback {
+    private RabbitProducerManager manager;
 
-    public RabbitMqConfirmCallback(RabbitMqProducerManager manager) {
+    public RabbitConfirmCallback(RabbitProducerManager manager) {
         this.manager = manager;
     }
 

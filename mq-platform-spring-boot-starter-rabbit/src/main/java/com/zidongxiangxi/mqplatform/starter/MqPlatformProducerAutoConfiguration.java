@@ -1,8 +1,8 @@
 package com.zidongxiangxi.mqplatform.starter;
 
 import com.zidongxiangxi.mqplatform.producer.RabbitTransactionTemplate;
-import com.zidongxiangxi.mqplatform.producer.callback.RabbitMqConfirmCallback;
-import com.zidongxiangxi.mqplatform.producer.manager.rabbit.RabbitMqProducerManager;
+import com.zidongxiangxi.mqplatform.producer.callback.RabbitConfirmCallback;
+import com.zidongxiangxi.mqplatform.producer.manager.RabbitProducerManager;
 import com.zidongxiangxi.mqplatform.api.transaction.DefaultTransactionSynchronization;
 import com.zidongxiangxi.mqplatform.producer.transaction.DefaultRabbitProducerSqlProvider;
 import com.zidongxiangxi.mqplatform.producer.transaction.RabbitProducerTransactionListener;
@@ -141,8 +141,8 @@ public class MqPlatformProducerAutoConfiguration {
          * @return mq消息的数据库manager
          */
         @Bean
-        public RabbitMqProducerManager rabbitProducerManager(MqPlatformRabbitProperties properties, JdbcTemplate jdbcTemplate) {
-            return new RabbitMqProducerManager(jdbcTemplate,
+        public RabbitProducerManager rabbitProducerManager(MqPlatformRabbitProperties properties, JdbcTemplate jdbcTemplate) {
+            return new RabbitProducerManager(jdbcTemplate,
                 new DefaultRabbitProducerSqlProvider(properties.getProducer().getTableName()),
                 properties.getProducer().getMaxExecuteTimes());
         }
@@ -150,13 +150,13 @@ public class MqPlatformProducerAutoConfiguration {
         @Bean
         @Primary
         @ConditionalOnSingleCandidate(ConnectionFactory.class)
-        public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, RabbitMqProducerManager producerManager) {
+        public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, RabbitProducerManager producerManager) {
             PropertyMapper map = PropertyMapper.get();
             DefaultTransactionSynchronization transactionSynchronization = new DefaultTransactionSynchronization();
             RabbitTransactionTemplate template = new RabbitTransactionTemplate(producerManager, transactionSynchronization);
             template.setConnectionFactory(connectionFactory);
             template.setMandatory(true);
-            template.setConfirmCallback(new RabbitMqConfirmCallback(producerManager));
+            template.setConfirmCallback(new RabbitConfirmCallback(producerManager));
 
             MessageConverter messageConverter = this.messageConverter.getIfUnique();
             if (messageConverter != null) {

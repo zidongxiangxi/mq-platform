@@ -24,10 +24,10 @@ import java.util.UUID;
  * @date 2019/08/30
  */
 @Data
-public class RabbitMqProducer implements Serializable, RowMapper<RabbitMqProducer> {
-    public RabbitMqProducer() {}
+public class RabbitProducer implements Serializable, RowMapper<RabbitProducer> {
+    public RabbitProducer() {}
 
-    public RabbitMqProducer(String exchange, String routingKey, @NotNull Message message, CorrelationData correlationData) {
+    public RabbitProducer(String exchange, String routingKey, @NotNull Message message, CorrelationData correlationData) {
         this.exchange = exchange;
         this.routingKey = routingKey;
         this.message = message;
@@ -60,8 +60,8 @@ public class RabbitMqProducer implements Serializable, RowMapper<RabbitMqProduce
     private Date updateTime;
 
     @Override
-    public RabbitMqProducer mapRow(ResultSet rs, int i) throws SQLException {
-        RabbitMqProducer producer = new RabbitMqProducer();
+    public RabbitProducer mapRow(ResultSet rs, int i) throws SQLException {
+        RabbitProducer producer = new RabbitProducer();
         producer.setMessageId(rs.getString("message_id"));
         producer.setExchange(rs.getString("exchange"));
         producer.setRoutingKey(rs.getString("routing_key"));

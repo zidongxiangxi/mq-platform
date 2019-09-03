@@ -2,7 +2,7 @@ package com.zidongxiangxi.mqplatform.starter;
 
 import com.zidongxiangxi.mqplatform.consumer.config.MessageListenerAop;
 import com.zidongxiangxi.mqplatform.consumer.manager.DefaultConsumerManager;
-import com.zidongxiangxi.mqplatform.consumer.manager.IConsumerManager;
+import com.zidongxiangxi.mqplatform.api.manager.IConsumerManager;
 import com.zidongxiangxi.mqplatform.consumer.transaction.DefaultRabbitConsumerSqlProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;

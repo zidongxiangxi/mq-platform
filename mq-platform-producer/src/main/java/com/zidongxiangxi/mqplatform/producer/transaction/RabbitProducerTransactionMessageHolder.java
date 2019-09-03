@@ -1,7 +1,7 @@
 package com.zidongxiangxi.mqplatform.producer.transaction;
 
-import com.zidongxiangxi.mqplatform.producer.entity.RabbitMqProducer;
-import com.zidongxiangxi.mqplatform.producer.manager.rabbit.RabbitMqProducerManager;
+import com.zidongxiangxi.mqplatform.producer.entity.RabbitProducer;
+import com.zidongxiangxi.mqplatform.producer.manager.RabbitProducerManager;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,22 +13,22 @@ import java.util.List;
  * @date 2019/08/31
  */
 public class RabbitProducerTransactionMessageHolder {
-    private final RabbitMqProducerManager producerManager;
-    private List<RabbitMqProducer> queue = new LinkedList<>();
+    private final RabbitProducerManager producerManager;
+    private List<RabbitProducer> queue = new LinkedList<>();
 
-    public RabbitProducerTransactionMessageHolder(RabbitMqProducerManager producerManager) {
+    public RabbitProducerTransactionMessageHolder(RabbitProducerManager producerManager) {
         this.producerManager = producerManager;
     }
 
-    public void add(RabbitMqProducer mqProducer) {
+    public void add(RabbitProducer mqProducer) {
         queue.add(mqProducer);
     }
 
-    public List<RabbitMqProducer> getQueue() {
+    public List<RabbitProducer> getQueue() {
         return queue;
     }
 
-    public RabbitMqProducerManager getProducerManager() {
+    public RabbitProducerManager getProducerManager() {
         return producerManager;
     }
 }

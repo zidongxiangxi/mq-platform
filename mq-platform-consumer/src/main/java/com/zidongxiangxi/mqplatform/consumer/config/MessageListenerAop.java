@@ -1,13 +1,12 @@
 package com.zidongxiangxi.mqplatform.consumer.config;
 
-import com.zidongxiangxi.mqplatform.consumer.manager.IConsumerManager;
+import com.zidongxiangxi.mqplatform.api.manager.IConsumerManager;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.amqp.core.Message;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
 
 import com.rabbitmq.client.Channel;

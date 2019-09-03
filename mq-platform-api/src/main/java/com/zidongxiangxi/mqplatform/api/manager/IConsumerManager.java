@@ -1,4 +1,4 @@
-package com.zidongxiangxi.mqplatform.consumer.manager;
+package com.zidongxiangxi.mqplatform.api.manager;
 
 /**
  * mq消息消费manager

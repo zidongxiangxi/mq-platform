@@ -1,8 +1,8 @@
 package com.zidongxiangxi.mqplatform.producer;
 
 import com.zidongxiangxi.mqplatform.api.exception.NotSupportOperationException;
-import com.zidongxiangxi.mqplatform.producer.entity.RabbitMqProducer;
-import com.zidongxiangxi.mqplatform.producer.manager.rabbit.RabbitMqProducerManager;
+import com.zidongxiangxi.mqplatform.producer.entity.RabbitProducer;
+import com.zidongxiangxi.mqplatform.producer.manager.RabbitProducerManager;
 import com.zidongxiangxi.mqplatform.api.transaction.DefaultTransactionSynchronization;
 import com.zidongxiangxi.mqplatform.producer.transaction.RabbitProducerTransactionMessageHolder;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +24,12 @@ import java.util.Objects;
  */
 @Slf4j
 public class RabbitTransactionTemplate extends RabbitTemplate {
-    private RabbitMqProducerManager producerManager;
+    private RabbitProducerManager producerManager;
     private DefaultTransactionSynchronization transactionSynchronization;
 
     public RabbitTransactionTemplate() {}
 
-    public RabbitTransactionTemplate(RabbitMqProducerManager producerManager) {
+    public RabbitTransactionTemplate(RabbitProducerManager producerManager) {
         this.producerManager = producerManager;
     }
 
@@ -37,7 +37,7 @@ public class RabbitTransactionTemplate extends RabbitTemplate {
         this.transactionSynchronization = transactionSynchronization;
     }
 
-    public RabbitTransactionTemplate(RabbitMqProducerManager producerManager,
+    public RabbitTransactionTemplate(RabbitProducerManager producerManager,
                                      DefaultTransactionSynchronization transactionSynchronization) {
         this.producerManager = producerManager;
         this.transactionSynchronization = transactionSynchronization;
@@ -64,7 +64,7 @@ public class RabbitTransactionTemplate extends RabbitTemplate {
                 && TransactionSynchronizationManager.isActualTransactionActive()) {
             TransactionSynchronizationManager.registerSynchronization(transactionSynchronization);
 
-            RabbitMqProducer mqProducer = new RabbitMqProducer(exchange, routingKey, message, correlationData);
+            RabbitProducer mqProducer = new RabbitProducer(exchange, routingKey, message, correlationData);
             TransactionSynchronizationManager.registerSynchronization(transactionSynchronization);
             RabbitProducerTransactionMessageHolder messageHolder = RabbitTransactionContext.getMessageHolder();
             if (messageHolder == null) {
@@ -73,7 +73,7 @@ public class RabbitTransactionTemplate extends RabbitTemplate {
             }
             messageHolder.add(mqProducer);
         } else if (Objects.nonNull(producerManager)) {
-            RabbitMqProducer mqProducer = new RabbitMqProducer(exchange, routingKey, message, correlationData);
+            RabbitProducer mqProducer = new RabbitProducer(exchange, routingKey, message, correlationData);
             try {
                 producerManager.saveMqProducer(mqProducer);
             } catch (Exception e) {

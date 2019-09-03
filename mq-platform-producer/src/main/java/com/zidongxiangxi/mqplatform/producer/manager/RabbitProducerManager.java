@@ -1,9 +1,9 @@
-package com.zidongxiangxi.mqplatform.producer.manager.rabbit;
+package com.zidongxiangxi.mqplatform.producer.manager;
 
 import com.alibaba.fastjson.JSON;
-import com.zidongxiangxi.mqplatform.producer.entity.RabbitMqProducer;
-import com.zidongxiangxi.mqplatform.producer.manager.IMqProducerManager;
-import com.zidongxiangxi.mqplatform.producer.transaction.IProducerSqlProvider;
+import com.zidongxiangxi.mqplatform.producer.entity.RabbitProducer;
+import com.zidongxiangxi.mqplatform.api.manager.IProducerManager;
+import com.zidongxiangxi.mqplatform.api.transaction.IProducerSqlProvider;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -15,24 +15,24 @@ import java.util.Objects;
  * @author chenxudong
  * @date 2019/08/30
  */
-public class RabbitMqProducerManager implements IMqProducerManager<RabbitMqProducer> {
+public class RabbitProducerManager implements IProducerManager<RabbitProducer> {
     private JdbcTemplate jdbcTemplate;
     private IProducerSqlProvider sqlProvider;
     private int maxExecuteTimes = 5;
 
-    public RabbitMqProducerManager(JdbcTemplate jdbcTemplate, IProducerSqlProvider sqlProvider) {
+    public RabbitProducerManager(JdbcTemplate jdbcTemplate, IProducerSqlProvider sqlProvider) {
         this.jdbcTemplate = jdbcTemplate;
         this.sqlProvider = sqlProvider;
     }
 
-    public RabbitMqProducerManager(JdbcTemplate jdbcTemplate, IProducerSqlProvider sqlProvider, int maxExecuteTimes) {
+    public RabbitProducerManager(JdbcTemplate jdbcTemplate, IProducerSqlProvider sqlProvider, int maxExecuteTimes) {
         this.jdbcTemplate = jdbcTemplate;
         this.sqlProvider = sqlProvider;
         this.maxExecuteTimes = maxExecuteTimes;
     }
 
     @Override
-    public boolean saveMqProducer(RabbitMqProducer producer) {
+    public boolean saveMqProducer(RabbitProducer producer) {
         int rows = jdbcTemplate.update(sqlProvider.getInsertMqSql(), producer.getMessageId(), producer.getExchange(),
                 producer.getRoutingKey(), producer.getMessage().getBody(), JSON.toJSONString(producer.getMessage().getMessageProperties()),
                 JSON.toJSONString(producer.getCorrelationData()), maxExecuteTimes);
@@ -41,9 +41,9 @@ public class RabbitMqProducerManager implements IMqProducerManager<RabbitMqProdu
 
     @Override
     public boolean failSendMq(String messageId) {
-        RabbitMqProducer mqProducer = null;
+        RabbitProducer mqProducer = null;
         try {
-            mqProducer = jdbcTemplate.queryForObject(sqlProvider.getSelectMqSql(), new RabbitMqProducer(), messageId);
+            mqProducer = jdbcTemplate.queryForObject(sqlProvider.getSelectMqSql(), new RabbitProducer(), messageId);
         } catch (EmptyResultDataAccessException ignore) {}
         if (Objects.isNull(mqProducer)) {
             return false;

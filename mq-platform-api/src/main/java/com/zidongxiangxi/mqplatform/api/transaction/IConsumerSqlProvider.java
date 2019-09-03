@@ -1,4 +1,4 @@
-package com.zidongxiangxi.mqplatform.consumer.transaction;
+package com.zidongxiangxi.mqplatform.api.transaction;
 
 /**
  * 幂等消费mq的sql提供者

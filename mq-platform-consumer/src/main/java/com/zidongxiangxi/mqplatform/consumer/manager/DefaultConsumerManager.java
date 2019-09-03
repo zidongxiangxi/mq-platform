@@ -1,6 +1,7 @@
 package com.zidongxiangxi.mqplatform.consumer.manager;
 
-import com.zidongxiangxi.mqplatform.consumer.transaction.IConsumerSqlProvider;
+import com.zidongxiangxi.mqplatform.api.manager.IConsumerManager;
+import com.zidongxiangxi.mqplatform.api.transaction.IConsumerSqlProvider;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
