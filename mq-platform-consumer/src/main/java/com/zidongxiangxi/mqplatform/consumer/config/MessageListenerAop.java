@@ -25,13 +25,17 @@ import java.util.Objects;
 @Slf4j
 @Aspect
 public class MessageListenerAop {
-    @Autowired
     private IConsumerManager consumerManager;
+
+    public MessageListenerAop(IConsumerManager consumerManager) {
+        this.consumerManager = consumerManager;
+    }
 
     /**
      * 定义切入点
      */
-    @Pointcut("within(org.springframework.amqp.rabbit.listener.api.MessageListenerAdapter.onMessage(..))")
+    @Pointcut("execution(public void org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter"
+        + ".onMessage(..))")
     public void messageListenerAround() {
     }
 
@@ -63,7 +67,7 @@ public class MessageListenerAop {
             if (Objects.nonNull(field)) {
                 isManualAck = (Boolean) ReflectionUtils.getField(field, target);
             }
-            if (isManualAck && Objects.nonNull(channel)) {
+            if (Objects.nonNull(isManualAck) && isManualAck && Objects.nonNull(channel)) {
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             }
             return null;

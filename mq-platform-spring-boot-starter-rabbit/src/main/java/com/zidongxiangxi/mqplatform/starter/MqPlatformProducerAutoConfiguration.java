@@ -4,6 +4,7 @@ import com.zidongxiangxi.mqplatform.producer.RabbitTransactionTemplate;
 import com.zidongxiangxi.mqplatform.producer.callback.RabbitMqConfirmCallback;
 import com.zidongxiangxi.mqplatform.producer.manager.rabbit.RabbitMqProducerManager;
 import com.zidongxiangxi.mqplatform.api.transaction.DefaultTransactionSynchronization;
+import com.zidongxiangxi.mqplatform.producer.transaction.DefaultRabbitProducerSqlProvider;
 import com.zidongxiangxi.mqplatform.producer.transaction.RabbitProducerTransactionListener;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -141,7 +142,9 @@ public class MqPlatformProducerAutoConfiguration {
          */
         @Bean
         public RabbitMqProducerManager rabbitProducerManager(MqPlatformRabbitProperties properties, JdbcTemplate jdbcTemplate) {
-            return new RabbitMqProducerManager(properties.getProducer(), jdbcTemplate);
+            return new RabbitMqProducerManager(jdbcTemplate,
+                new DefaultRabbitProducerSqlProvider(properties.getProducer().getTableName()),
+                properties.getProducer().getMaxExecuteTimes());
         }
 
         @Bean

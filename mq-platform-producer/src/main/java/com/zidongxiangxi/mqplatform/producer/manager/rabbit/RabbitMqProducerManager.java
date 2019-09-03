@@ -1,10 +1,8 @@
 package com.zidongxiangxi.mqplatform.producer.manager.rabbit;
 
 import com.alibaba.fastjson.JSON;
-import com.zidongxiangxi.mqplatform.producer.config.ProducerConfig;
 import com.zidongxiangxi.mqplatform.producer.entity.RabbitMqProducer;
 import com.zidongxiangxi.mqplatform.producer.manager.IMqProducerManager;
-import com.zidongxiangxi.mqplatform.producer.transaction.DefaultRabbitProducerSqlProvider;
 import com.zidongxiangxi.mqplatform.producer.transaction.IProducerSqlProvider;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,21 +16,26 @@ import java.util.Objects;
  * @date 2019/08/30
  */
 public class RabbitMqProducerManager implements IMqProducerManager<RabbitMqProducer> {
-    private ProducerConfig config;
     private JdbcTemplate jdbcTemplate;
     private IProducerSqlProvider sqlProvider;
+    private int maxExecuteTimes = 5;
 
-    public RabbitMqProducerManager(ProducerConfig config, JdbcTemplate jdbcTemplate) {
-        this.config = config;
+    public RabbitMqProducerManager(JdbcTemplate jdbcTemplate, IProducerSqlProvider sqlProvider) {
         this.jdbcTemplate = jdbcTemplate;
-        this.sqlProvider = new DefaultRabbitProducerSqlProvider(config.getTableName());
+        this.sqlProvider = sqlProvider;
+    }
+
+    public RabbitMqProducerManager(JdbcTemplate jdbcTemplate, IProducerSqlProvider sqlProvider, int maxExecuteTimes) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.sqlProvider = sqlProvider;
+        this.maxExecuteTimes = maxExecuteTimes;
     }
 
     @Override
     public boolean saveMqProducer(RabbitMqProducer producer) {
         int rows = jdbcTemplate.update(sqlProvider.getInsertMqSql(), producer.getMessageId(), producer.getExchange(),
                 producer.getRoutingKey(), producer.getMessage().getBody(), JSON.toJSONString(producer.getMessage().getMessageProperties()),
-                JSON.toJSONString(producer.getCorrelationData()), config.getMaxExecuteTimes());
+                JSON.toJSONString(producer.getCorrelationData()), maxExecuteTimes);
         return rows > 0;
     }
 
