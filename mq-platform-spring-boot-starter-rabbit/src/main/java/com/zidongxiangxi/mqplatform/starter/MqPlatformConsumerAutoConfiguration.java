@@ -5,6 +5,7 @@ import com.zidongxiangxi.mqplatform.consumer.manager.DefaultConsumerManager;
 import com.zidongxiangxi.mqplatform.api.manager.IConsumerManager;
 import com.zidongxiangxi.mqplatform.consumer.transaction.DefaultRabbitConsumerSqlProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  */
 @ConditionalOnSingleCandidate(JdbcTemplate.class)
 @EnableConfigurationProperties(MqPlatformRabbitProperties.class)
+@ConditionalOnProperty(prefix = "spring.rabbitmq.consumer", name = "idempotent", havingValue = "true")
 public class MqPlatformConsumerAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean({IConsumerManager.class})
