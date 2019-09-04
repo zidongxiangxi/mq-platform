@@ -9,17 +9,18 @@ import com.zidongxiangxi.mqplatform.producer.transaction.RabbitProducerTransacti
  * @date 2019/08/31
  */
 public class RabbitTransactionContext {
-    private static ThreadLocal<RabbitProducerTransactionMessageHolder> messageHolderThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<RabbitProducerTransactionMessageHolder> MESSAGE_HOLDER_THREAD_LOCAL =
+        new ThreadLocal<>();
 
     public static RabbitProducerTransactionMessageHolder getMessageHolder() {
-        return messageHolderThreadLocal.get();
+        return MESSAGE_HOLDER_THREAD_LOCAL.get();
     }
 
     public static void setMessageHolder(RabbitProducerTransactionMessageHolder messageHolder) {
-        messageHolderThreadLocal.set(messageHolder);
+        MESSAGE_HOLDER_THREAD_LOCAL.set(messageHolder);
     }
 
     public static void removeMessageHolder() {
-        messageHolderThreadLocal.remove();
+        MESSAGE_HOLDER_THREAD_LOCAL.remove();
     }
 }

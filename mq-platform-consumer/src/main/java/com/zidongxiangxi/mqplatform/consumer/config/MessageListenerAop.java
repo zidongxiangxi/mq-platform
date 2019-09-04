@@ -7,12 +7,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.amqp.core.Message;
-import org.springframework.util.ReflectionUtils;
 
 import com.rabbitmq.client.Channel;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
@@ -25,6 +23,7 @@ import java.util.Objects;
 @Aspect
 public class MessageListenerAop {
     private IConsumerManager consumerManager;
+    private static final int MAX_RETRY_TIMES = 5;
 
     public MessageListenerAop(IConsumerManager consumerManager) {
         this.consumerManager = consumerManager;
@@ -33,17 +32,19 @@ public class MessageListenerAop {
     /**
      * 定义切入点
      */
-    @Pointcut("execution(public void org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter"
-        + ".onMessage(..))")
-    public void messageListenerAround() {
+    @Pointcut("@annotation(org.springframework.amqp.rabbit.annotation.RabbitListener)")
+    public void rabbitListener() {
     }
 
     /**
-     * 拦截onMessage方法
+     * 拦截方法
+     *
+     * @param pjp 切点
+     * @return 返回值
+     * @throws Throwable
      */
-    @Around("messageListenerAround()")
-    public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
-        Object target = pjp.getTarget();
+    @Around("rabbitListener()")
+    public Object doRabbitListenerAround(ProceedingJoinPoint pjp) throws Throwable {
         Object[] args = pjp.getArgs();
         Message message = null;
         Channel channel = null;
@@ -54,32 +55,45 @@ public class MessageListenerAop {
                 channel = (Channel) arg;
             }
         }
-
-        if (Objects.isNull(message) || Objects.isNull(message.getMessageProperties())
-                || StringUtils.isEmpty(message.getMessageProperties().getMessageId())) {
+        if (Objects.isNull(message)) {
             return pjp.proceed();
         }
-        String messageId = message.getMessageProperties().getMessageId();
+        String messageId = getMessageId(message);
+        if (StringUtils.isEmpty(messageId)) {
+            return pjp.proceed();
+        }
         if (!consumerManager.insertConsumeRecord(messageId)) {
-            Field field = ReflectionUtils.findField(target.getClass(), "isManualAck");
-            Boolean isManualAck = false;
-            if (Objects.nonNull(field)) {
-                isManualAck = (Boolean) ReflectionUtils.getField(field, target);
-            }
-            if (Objects.nonNull(isManualAck) && isManualAck && Objects.nonNull(channel)) {
+            if (Objects.isNull(channel)) {
+                return null;
+            } else {
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             }
-            return null;
         }
         boolean success = false;
-        try {
-            Object result = pjp.proceed();
-            success = true;
-            return result;
-        } finally {
-            if (!success) {
-                consumerManager.deleteConsumeRecord(messageId);
+        Object result = null;
+        for (int i = 0; i < MAX_RETRY_TIMES; i++) {
+            try {
+                result = pjp.proceed();
+                success = true;
+                break;
+            } catch (Exception e) {
+                log.warn("fail to consume message: {}", message.toString());
             }
         }
+        if (success) {
+            if (Objects.nonNull(channel)) {
+                channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            }
+        } else {
+            consumerManager.deleteConsumeRecord(messageId);
+            if (Objects.nonNull(channel)) {
+                channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+            }
+        }
+        return result;
+    }
+
+    private String getMessageId(Message message) {
+        return Objects.nonNull(message.getMessageProperties()) ? message.getMessageProperties().getMessageId() : null;
     }
 }
