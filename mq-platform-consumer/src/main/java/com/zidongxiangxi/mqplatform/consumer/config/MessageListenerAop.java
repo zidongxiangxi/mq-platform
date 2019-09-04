@@ -71,6 +71,7 @@ public class MessageListenerAop {
         }
         boolean success = false;
         Object result = null;
+        // TODO 重试次数从配置读取
         for (int i = 0; i < MAX_RETRY_TIMES; i++) {
             try {
                 result = pjp.proceed();
@@ -85,6 +86,7 @@ public class MessageListenerAop {
                 channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             }
         } else {
+            // TODO 1、触发告警；2、考虑死信机制，例如与删除幂等记录的同一个事务中保存mq消息
             consumerManager.deleteConsumeRecord(messageId);
             if (Objects.nonNull(channel)) {
                 channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
