@@ -19,4 +19,9 @@ public class ConsumerConfig {
      * 用于实现幂等消息mq的表名
      */
     private String tableName;
+
+    /**
+     * 最大重试次数
+     */
+    private int maxRetryTimes;
 }
